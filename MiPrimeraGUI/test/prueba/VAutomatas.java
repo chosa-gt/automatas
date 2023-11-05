@@ -13,6 +13,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Tab;
+import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +35,17 @@ public class VAutomatas extends Application {
     public void start(Stage stage) {
 
         Group root = new Group();
-        Scene scene = new Scene(root, 720, 480);
+        //Scene scene = new Scene(root, 720, 480);
+        
+        TabPane tabPane = new TabPane();
+        
+        Tab tablaTab = new Tab("Tabla");
+
+        Tab tab1 = new Tab("Formulario");
+        tab1.setClosable(false);
+        
+        VBox vbox = new VBox();
+        Scene scene = new Scene(vbox, 720, 480);
 
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(10, 10, 10, 10));
@@ -70,7 +83,9 @@ public class VAutomatas extends Application {
                 abecedarioList = new ArrayList<>(Arrays.asList(textoAbecedario.split("[,\\s]+")));
                 estadosList = new ArrayList<>(Arrays.asList(textoEstados.split("[,\\s]+")));
 
-                buildDynamicGridPane(grid, abecedarioList, estadosList);
+                buildDynamicGridPane(tablaTab, abecedarioList, estadosList);
+                tabPane.getTabs().add(tablaTab);
+                tabPane.getSelectionModel().select(tablaTab);
             } else {
                 label.setText("Parámetros no aceptados");
             }
@@ -82,14 +97,24 @@ public class VAutomatas extends Application {
             label.setText(null);
             grid.getChildren().clear();
         });
+        
+        vbox.getChildren().addAll(tabPane);
+        tab1.setContent(grid);
+        tabPane.getTabs().add(tab1);
 
-        root.getChildren().add(grid);
+        //root.getChildren().add(tabPane);
         stage.setTitle("Automatas");
         stage.setScene(scene);
         stage.show();
     }
 
-    private void buildDynamicGridPane(GridPane grid, ArrayList<String> abecedarioList, ArrayList<String> estadosList) {
+    private void buildDynamicGridPane(Tab tab, ArrayList<String> abecedarioList, ArrayList<String> estadosList) {
+        
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.setVgap(5);
+        grid.setHgap(5);
+        
         for (int col = 0; col < abecedarioList.size(); col++) {
             Label etiqueta = new Label(abecedarioList.get(col));
             grid.add(etiqueta, col + 2, 5);
@@ -108,6 +133,7 @@ public class VAutomatas extends Application {
                 grid.add(textFields[row][col], col + 2, row + 6);
             }
         }
+        tab.setContent(grid);
     }
 
     public static void main(String[] args) {
