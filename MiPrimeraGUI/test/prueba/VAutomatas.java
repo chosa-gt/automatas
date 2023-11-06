@@ -22,6 +22,7 @@ import javafx.scene.control.ScrollPane;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class VAutomatas extends Application {
 
@@ -65,7 +66,11 @@ public class VAutomatas extends Application {
         Button aceptar = new Button("Aceptar");
         GridPane.setConstraints(aceptar, 1, 0);
         grid.getChildren().add(aceptar);
-
+        
+                Button aceptar2 = new Button("Aceptar");
+        GridPane.setConstraints(aceptar2, 3, 0);
+        grid.getChildren().add(aceptar2);
+        
         Button limpiar = new Button("Limpiar");
         GridPane.setConstraints(limpiar, 1, 1);
         grid.getChildren().add(limpiar);
@@ -124,6 +129,7 @@ public class VAutomatas extends Application {
             grid.add(etiqueta, 1, row + 6); // 6
         }
 
+        // Matriz de datos TextField
         TextField[][] textFields = new TextField[estadosList.size()][abecedarioList.size()];
         for (int row = 0; row < estadosList.size(); row++) {
             for (int col = 0; col < abecedarioList.size(); col++) {
@@ -238,7 +244,45 @@ public class VAutomatas extends Application {
         }
     }
 
+    public static TextField[][] getTextFieldsFromTab(Tab tab, int numColumns, int numRows) {
+        GridPane grid = (GridPane) tab.getContent();
+        TextField[][] textFields = new TextField[numRows][numColumns];
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numColumns; col++) {
+                textFields[row][col] = (TextField) grid.getChildren().get((row + 6) * numColumns + col + 2);
+            }
+        }
+        return textFields;
+    }
+
+    public static void obtenerYProcesarDatos(TextField[][] textFields) {
+        // Obtener y procesar datos desde los campos TextField
+        for (int row = 0; row < textFields.length/2; row++) {
+            for (int col = 0; col < (textFields[row].length/2)-1; col++) {
+                String dato = textFields[row][col].getText();
+                System.out.println("Dato [" + row + "][" + col + "]: " + dato);
+                // Realizar el procesamiento necesario
+            }
+        }
+    }
     public static void main(String[] args) {
         launch(args);
     }
+
+    
+
+public static void imprimirTextFields(TextField[][] textFields) {
+    for (int row = 0; row < textFields.length; row++) {
+        for (int col = 0; col < textFields[row].length; col++) {
+            String dato = textFields[row][col].getText();
+            System.out.println("Dato [" + row + "][" + col + "]: " + dato);
+        }
+    }
+}
+
+ 
+
+
+    
+    
 }
