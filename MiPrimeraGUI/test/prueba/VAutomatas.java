@@ -16,6 +16,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
+import javafx.scene.layout.Pane;
+import javafx.scene.control.ScrollPane;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,24 +30,21 @@ public class VAutomatas extends Application {
     String textoEstados;
     ArrayList<String> abecedarioList = new ArrayList<>();
     ArrayList<String> estadosList = new ArrayList<>();
-    List<String> datos = new ArrayList<>();
-    private Parent createContent() {
-        return new StackPane(new Text("Hello World"));
-    }
+
+    TabPane tabPane = new TabPane();
+
+    Tab tabFormulario = new Tab("Formulario");
+    Tab tablaTab = createAdaptableTab("Tabla");
+    Tab diagramaTab = new Tab("Diagrama");
 
     @Override
     public void start(Stage stage) {
 
         Group root = new Group();
-        //Scene scene = new Scene(root, 720, 480);
-        
-        TabPane tabPane = new TabPane();
-        
-        Tab tablaTab = new Tab("Tabla");
+        // Scene scene = new Scene(root, 720, 480);
 
-        Tab tab1 = new Tab("Formulario");
-        tab1.setClosable(false);
-        
+        tabFormulario.setClosable(false);
+
         VBox vbox = new VBox();
         Scene scene = new Scene(vbox, 720, 480);
 
@@ -100,34 +100,25 @@ public class VAutomatas extends Application {
             abecedario.clear();
             estados.clear();
             label.setText(null);
-            grid.getChildren().clear();
+            // grid.getChildren().clear();
         });
-        
-         aceptar2.setOnAction((ActionEvent e) -> {
-                // Obtener la matriz de campos TextField desde la pestaña (Tab)
-TextField[][] textFields = getTextFieldsFromTab(tablaTab, abecedarioList.size()+1, estadosList.size()+1);
 
-// Llamar al método para imprimir los datos en la consola
-imprimirTextFields(textFields);
-
-        });
-        
         vbox.getChildren().addAll(tabPane);
-        tab1.setContent(grid);
-        tabPane.getTabs().add(tab1);
+        tabFormulario.setContent(grid);
+        tabPane.getTabs().add(tabFormulario);
 
-        //root.getChildren().add(tabPane);
+        // root.getChildren().add(tabPane);
         stage.setTitle("Automatas");
         stage.setScene(scene);
         stage.show();
     }
 
-public static void buildDynamicGridPane(Tab tab, ArrayList<String> abecedarioList, ArrayList<String> estadosList) {
+    private void buildDynamicGridPane(Tab tab, ArrayList<String> abecedarioList, ArrayList<String> estadosList) {
+        ScrollPane scrollPane = new ScrollPane();
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(10, 10, 10, 10));
         grid.setVgap(5);
         grid.setHgap(5);
-        
         for (int col = 0; col < abecedarioList.size(); col++) {
             Label etiqueta = new Label(abecedarioList.get(col));
             grid.add(etiqueta, col + 2, 5);
@@ -135,7 +126,7 @@ public static void buildDynamicGridPane(Tab tab, ArrayList<String> abecedarioLis
 
         for (int row = 0; row < estadosList.size(); row++) {
             Label etiqueta = new Label(estadosList.get(row));
-            grid.add(etiqueta, 1 , row + 6);
+            grid.add(etiqueta, 1, row + 6); // 6
         }
 
         // Matriz de datos TextField
@@ -148,20 +139,109 @@ public static void buildDynamicGridPane(Tab tab, ArrayList<String> abecedarioLis
             }
         }
 
-        Button crear = new Button("Crear Automata");//botton para crear el automata
+        Button crear = new Button("Crear Automata");// botton para crear el automata
         GridPane.setConstraints(crear, 1, 0);
         grid.getChildren().add(crear);
+
         crear.setOnAction((ActionEvent e) -> {
-            //TextField[][] textFields = getTextFieldsFromTab(tab, abecedarioList.size() + 1, estadosList.size() + 1);
+            // aqui adentro va la accion del botton
 
-    // Llamar al método para imprimir los datos en la consola
-    imprimirTextFields(textFields);
+            // TextField[][] textFieldsList = getTextFieldsFromTab(tab,
+            // abecedarioList.size() + 1, estadosList.size() + 1);
+            // obtenerYProcesarDatos(textFieldsList);
+            // imprimirTextFields(textFieldsList);
+            // //fillEmptyTextFieldsWithLambda(textFieldsList);
 
-    // Llamar al método para obtener y procesar datos
-    obtenerYProcesarDatos(textFields);
+            generateCircles(diagramaTab, estadosList.size());
+            tabPane.getTabs().add(diagramaTab);
+            tabPane.getSelectionModel().select(diagramaTab);
         });
-        
-        tab.setContent(grid);
+
+        scrollPane.setContent(grid);
+        scrollPane.setFitToWidth(true); // Esto permite que el ScrollPane se adapte al ancho de la ventana
+        tab.setContent(scrollPane);
+    }
+
+    private void generateCircles(Tab tab, int count) {
+        ScrollPane scrollPane = new ScrollPane();
+        Pane pane = new Pane();
+        scrollPane.setContent(pane);
+
+        double centerX = 300; // Coordenada X del centro de los círculos
+        double centerY = 200; // Coordenada Y del centro de los círculos
+        double maxRadius = 100; // Radio máximo de los círculos
+        double circleRadius = 20; // Radio de los círculos
+        double angleIncrement = 360.0 / count;
+        double currentAngle = 0;
+
+        for (String estado : estadosList) {
+            double x = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle));
+            double y = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle));
+
+            Circle circle = new Circle(x, y, circleRadius);
+            circle.setStyle("-fx-stroke: black; -fx-fill: yellow;");
+            pane.getChildren().add(circle);
+
+            Text text = new Text(x - circleRadius / 2, y, estado);
+            text.setStyle("-fx-font: 12 arial;");
+            pane.getChildren().add(text);
+
+            currentAngle += angleIncrement;
+        }
+
+        tab.setContent(scrollPane);
+    }
+
+    private Tab createAdaptableTab(String tabTitle) {
+        Tab tab = new Tab(tabTitle);
+        ScrollPane scrollPane = new ScrollPane();
+        VBox content = new VBox();
+
+        // Agrega contenido al ScrollPane (puedes personalizar esto)
+        for (int j = 1; j <= 20; j++) {
+            content.getChildren().add(new VBox());
+        }
+
+        scrollPane.setContent(content);
+
+        // Asegura que el contenido del ScrollPane se ajuste al tamaño de la pestaña
+        content.prefWidthProperty().bind(scrollPane.widthProperty());
+        content.prefHeightProperty().bind(scrollPane.heightProperty());
+
+        tab.setContent(scrollPane);
+
+        return tab;
+    }
+
+    public static TextField[][] getTextFieldsFromTab(Tab tab, int numColumns, int numRows) {
+        GridPane grid = (GridPane) tab.getContent();
+        TextField[][] textFields = new TextField[numRows][numColumns];
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numColumns; col++) {
+                textFields[row][col] = (TextField) grid.getChildren().get((row + 6) * numColumns + col + 2);
+            }
+        }
+        return textFields;
+    }
+
+    public static void imprimirTextFields(TextField[][] textFields) {
+        for (int row = 0; row < textFields.length; row++) {
+            for (int col = 0; col < textFields[row].length; col++) {
+                String dato = textFields[row][col].getText();
+                System.out.println("Dato [" + row + "][" + col + "]: " + dato);
+            }
+        }
+    }
+
+    public static void obtenerYProcesarDatos(TextField[][] textFields) {
+        // Obtener y procesar datos desde los campos TextField
+        for (int row = 0; row < textFields.length / 2; row++) {
+            for (int col = 0; col < (textFields[row].length / 2) - 1; col++) {
+                String dato = textFields[row][col].getText();
+                System.out.println("Dato [" + row + "][" + col + "]: " + dato);
+                // Realizar el procesamiento necesario
+            }
+        }
     }
 
     public static TextField[][] getTextFieldsFromTab(Tab tab, int numColumns, int numRows) {
