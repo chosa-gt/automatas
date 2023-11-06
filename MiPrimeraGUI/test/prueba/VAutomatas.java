@@ -40,7 +40,7 @@ public class VAutomatas extends Application {
     public void start(Stage stage) {
 
         Group root = new Group();
-        //Scene scene = new Scene(root, 720, 480);
+        // Scene scene = new Scene(root, 720, 480);
 
         tabFormulario.setClosable(false);
 
@@ -86,7 +86,6 @@ public class VAutomatas extends Application {
                 buildDynamicGridPane(tablaTab, abecedarioList, estadosList);
                 tabPane.getTabs().add(tablaTab);
                 tabPane.getSelectionModel().select(tablaTab);
-
             } else {
                 label.setText("Parámetros no aceptados");
             }
@@ -96,14 +95,18 @@ public class VAutomatas extends Application {
             abecedario.clear();
             estados.clear();
             label.setText(null);
-            //grid.getChildren().clear();
+            // grid.getChildren().clear();
         });
+
+        vbox.getChildren().addAll(tabPane);
+        tab1.setContent(grid);
+        tabPane.getTabs().add(tab1);
 
         vbox.getChildren().addAll(tabPane);
         tabFormulario.setContent(grid);
         tabPane.getTabs().add(tabFormulario);
 
-        //root.getChildren().add(tabPane);
+        // root.getChildren().add(tabPane);
         stage.setTitle("Automatas");
         stage.setScene(scene);
         stage.show();
@@ -115,7 +118,6 @@ public class VAutomatas extends Application {
         grid.setPadding(new Insets(10, 10, 10, 10));
         grid.setVgap(5);
         grid.setHgap(5);
-
         for (int col = 0; col < abecedarioList.size(); col++) {
             Label etiqueta = new Label(abecedarioList.get(col));
             grid.add(etiqueta, col + 2, 5);
@@ -123,7 +125,7 @@ public class VAutomatas extends Application {
 
         for (int row = 0; row < estadosList.size(); row++) {
             Label etiqueta = new Label(estadosList.get(row));
-            grid.add(etiqueta, 1, row + 6); //6
+            grid.add(etiqueta, 1, row + 6); // 6
         }
 
         TextField[][] textFields = new TextField[estadosList.size()][abecedarioList.size()];
@@ -135,18 +137,19 @@ public class VAutomatas extends Application {
             }
         }
 
-        Button crear = new Button("Crear Automata");//botton para crear el automata
+        Button crear = new Button("Crear Automata");// botton para crear el automata
         GridPane.setConstraints(crear, 1, 0);
         grid.getChildren().add(crear);
 
         crear.setOnAction((ActionEvent e) -> {
-            //aqui adentro va la accion del botton
+            // aqui adentro va la accion del botton
 
-//            TextField[][] textFieldsList = getTextFieldsFromTab(tab, abecedarioList.size() + 1, estadosList.size() + 1);
-//            obtenerYProcesarDatos(textFieldsList);
-//            imprimirTextFields(textFieldsList);
-//            //fillEmptyTextFieldsWithLambda(textFieldsList);
-            
+            // TextField[][] textFieldsList = getTextFieldsFromTab(tab,
+            // abecedarioList.size() + 1, estadosList.size() + 1);
+            // obtenerYProcesarDatos(textFieldsList);
+            // imprimirTextFields(textFieldsList);
+            // //fillEmptyTextFieldsWithLambda(textFieldsList);
+
             generateCircles(diagramaTab, estadosList.size());
             tabPane.getTabs().add(diagramaTab);
             tabPane.getSelectionModel().select(diagramaTab);
@@ -227,11 +230,11 @@ public class VAutomatas extends Application {
             }
         }
     }
-    
-     public static void obtenerYProcesarDatos(TextField[][] textFields) {
+
+    public static void obtenerYProcesarDatos(TextField[][] textFields) {
         // Obtener y procesar datos desde los campos TextField
-        for (int row = 0; row < textFields.length/2; row++) {
-            for (int col = 0; col < (textFields[row].length/2)-1; col++) {
+        for (int row = 0; row < textFields.length / 2; row++) {
+            for (int col = 0; col < (textFields[row].length / 2) - 1; col++) {
                 String dato = textFields[row][col].getText();
                 System.out.println("Dato [" + row + "][" + col + "]: " + dato);
                 // Realizar el procesamiento necesario
