@@ -99,14 +99,6 @@ public class VAutomatas extends Application {
         });
 
         vbox.getChildren().addAll(tabPane);
-        tab1.setContent(grid);
-        tabPane.getTabs().add(tab1);
-
-        vbox.getChildren().addAll(tabPane);
-        tab1.setContent(grid);
-        tabPane.getTabs().add(tab1);
-
-        vbox.getChildren().addAll(tabPane);
         tabFormulario.setContent(grid);
         tabPane.getTabs().add(tabFormulario);
 
