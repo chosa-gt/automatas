@@ -1,62 +1,69 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
-package prueba;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.QuadCurve;
+import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- *
- * @author chino
- */
-public class pruebalist {
-
-    /**
-     * @param args the command line arguments
-     */
-
-public static List<String> procesarDatos(List<String> lista) {
-        // Crear una nueva lista para almacenar los datos procesados
-        List<String> datosProcesados = new ArrayList<>();
-
-        // Recorrer la lista y agregar los elementos a la nueva lista
-        for (String elemento : lista) {
-            datosProcesados.add(elemento);
-        }
-
-        // Devolver la lista procesada
-        return datosProcesados;
-    }
-
-    public static void miMetodo2(List<String> lista) {
-        // Llamar al método procesarDatos para obtener la lista procesada
-        List<String> datosProcesados = procesarDatos(lista);
-
-        // Ahora puedes utilizar la lista datosProcesados en tu código
-        for (String elemento : datosProcesados) {
-            System.out.println("Dato procesado: " + elemento);
-        }
-    }
-
+public class pruebalist extends Application {
     public static void main(String[] args) {
-        List<String> datos = new ArrayList<>();
-        datos.add("Dato 1");
-        datos.add("Dato 2");
-        datos.add("Dato 3");
-
-        // Llamar a miMetodo2 y pasar la lista de datos
-        miMetodo2(datos);
-        
-        // Llamar a procesarDatos y almacenar la lista procesada
-        List<String> datosProcesados = procesarDatos(datos);
-
-        // Ahora puedes utilizar la lista datosProcesados en tu código
-        for (String elemento : datosProcesados) {
-            System.out.println("Dato procesado: " + elemento);
-        }
+        launch(args);
     }
-    
+
+    @Override
+    public void start(Stage primaryStage) {
+        double[][] curvePositions = {
+            {50, 50, 125, 0, 200, 50},
+            {50, 100, 125, 100, 200, 100},
+            {50, 150, 125, 200, 200, 150}
+        };
+
+        drawCurvedLinesAndShowDialog(primaryStage, curvePositions);
+    }
+
+    public void drawCurvedLinesAndShowDialog(Stage stage, double[][] curvePositions) {
+        // Crear un lienzo (Canvas) para dibujar las líneas curvas
+        Canvas canvas = new Canvas(250, 200);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(2);
+
+        for (double[] position : curvePositions) {
+            double startX = position[0];
+            double startY = position[1];
+            double controlX = position[2];
+            double controlY = position[3];
+            double endX = position[4];
+            double endY = position[5];
+
+           gc.beginPath();
+            gc.moveTo(startX, startY);
+            gc.quadraticCurveTo(controlX, controlY, endX, endY);
+            gc.stroke();
+        }
+
+        // Crear un contenedor para el lienzo
+        VBox vbox = new VBox(canvas);
+
+        // Crear una escena y mostrarla en un diálogo
+        Scene scene = new Scene(vbox);
+        stage.setScene(scene);
+        stage.setTitle("Líneas Curvas Generadas");
+        stage.show();
+
+        // Mostrar un diálogo informativo
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Información");
+        alert.setHeaderText(null);
+        alert.setContentText("Líneas curvas generadas con posiciones de datos de entrada.");
+        alert.showAndWait();
+    }
 }
+
+
+
 
