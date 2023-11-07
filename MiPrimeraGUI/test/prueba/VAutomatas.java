@@ -9,11 +9,15 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import javafx.scene.text.Text;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class VAutomatas extends Application {
 
@@ -27,8 +31,15 @@ public class VAutomatas extends Application {
     Tab tabFormulario = new Tab("Formulario");
     Tab tablaTab = createAdaptableTab("Tabla");
     Tab diagramaTab = new Tab("Diagrama");
-    
+
     TextField[][] textFields;
+
+    private TextField estadoInicialTextField;// Nuevas variables miembro para el Estado inicial y Estado final
+    private TextField estadoFinalTextField;
+
+    private ChoiceBox<String> tipoAutomataChoiceBox;// Nueva variable miembro para el ChoiceBox del Tipo de autómata
+    
+    private Map<String, Map<String, String>> transicionesMap = new HashMap<>();
 
     @Override
     public void start(Stage stage) {
@@ -52,10 +63,26 @@ public class VAutomatas extends Application {
         GridPane.setConstraints(estados, 0, 1);
         grid.getChildren().add(estados);
 
+        estadoInicialTextField = new TextField();
+        estadoInicialTextField.setPromptText("Estado inicial");
+        GridPane.setConstraints(estadoInicialTextField, 2, 0);
+        grid.getChildren().add(estadoInicialTextField);
+
+        estadoFinalTextField = new TextField();
+        estadoFinalTextField.setPromptText("Estado final");
+        GridPane.setConstraints(estadoFinalTextField, 2, 1);
+        grid.getChildren().add(estadoFinalTextField);
+
+        tipoAutomataChoiceBox = new ChoiceBox<>();
+        tipoAutomataChoiceBox.getItems().addAll("Finito Determinista", "Finito No Determinista");
+        tipoAutomataChoiceBox.setValue("Finito Determinista"); // Valor predeterminado
+        GridPane.setConstraints(tipoAutomataChoiceBox, 2, 2);
+        grid.getChildren().add(tipoAutomataChoiceBox);
+
         Button aceptar = new Button("Aceptar");
         GridPane.setConstraints(aceptar, 1, 0);
         grid.getChildren().add(aceptar);
-        
+
         Button limpiar = new Button("Limpiar");
         GridPane.setConstraints(limpiar, 1, 1);
         grid.getChildren().add(limpiar);
@@ -66,18 +93,40 @@ public class VAutomatas extends Application {
         grid.getChildren().add(label);
 
         aceptar.setOnAction((ActionEvent e) -> {
-            if (estados.getText() != null && !abecedario.getText().isEmpty()) {
+            String abecedarioText = abecedario.getText();
+            String estadosText = estados.getText();
+            String estadoInicialText = estadoInicialTextField.getText();
+            String estadoFinalText = estadoFinalTextField.getText();
+
+            if (abecedarioText != null && !abecedarioText.isEmpty()
+                        && estadosText != null && !estadosText.isEmpty()
+                        && estadoInicialText != null && !estadoInicialText.isEmpty()
+                        && estadoFinalText != null && !estadoFinalText.isEmpty()) {
+                
+                
+
+                // Validar que el estado inicial y final estén en la lista de estados
+                if (!estadosList.contains(estadoInicialText) || !estadosList.contains(estadoFinalText)) {
+                    label.setText("El estado inicial o final no es válido.");
+                } else {
+                    // ... Continuar con el procesamiento de los datos ...
+                }
+
                 label.setText(abecedario.getText() + " " + estados.getText() + ", Parámetros aceptados.");
                 textoAbecedario = abecedario.getText();
                 textoEstados = estados.getText();
                 abecedarioList = new ArrayList<>(Arrays.asList(textoAbecedario.split("[,\\s]+")));
                 estadosList = new ArrayList<>(Arrays.asList(textoEstados.split("[,\\s]+")));
 
+                String estadoInicial = estadoInicialTextField.getText();// Almacena el estado inicial y final ingresados por el usuario
+                String estadoFinal = estadoFinalTextField.getText();
+                String tipoAutomata = tipoAutomataChoiceBox.getValue(); // Obtiene el tipo de autómata seleccionado
+
                 buildDynamicGridPane(tablaTab, abecedarioList, estadosList);
                 tabPane.getTabs().add(tablaTab);
                 tabPane.getSelectionModel().select(tablaTab);
             } else {
-                label.setText("Parámetros no aceptados");
+                label.setText("Asegúrese de completar todos los campos.");
             }
         });
 
@@ -102,9 +151,9 @@ public class VAutomatas extends Application {
         grid.setPadding(new Insets(10, 10, 10, 10));
         grid.setVgap(5);
         grid.setHgap(5);
-        
+
         textFields = new TextField[estadosList.size()][abecedarioList.size()];
-        
+
         for (int col = 0; col < abecedarioList.size(); col++) {
             Label etiqueta = new Label(abecedarioList.get(col));
             grid.add(etiqueta, col + 2, 5);
@@ -128,8 +177,7 @@ public class VAutomatas extends Application {
         grid.getChildren().add(crear);
 
         crear.setOnAction((ActionEvent e) -> {
-            imprimirTextFields(textFields);
-            obtenerYProcesarDatos(textFields);
+            procesarDatos(textFields, estadosList, abecedarioList);
 
             generateCircles(diagramaTab, estadosList.size());
             tabPane.getTabs().add(diagramaTab);
@@ -142,54 +190,76 @@ public class VAutomatas extends Application {
     }
 
     private void generateCircles(Tab tab, int count) {
-        ScrollPane scrollPane = new ScrollPane();
-        Pane pane = new Pane();
-        scrollPane.setContent(pane);
+    ScrollPane scrollPane = new ScrollPane();
+    Pane pane = new Pane();
+    scrollPane.setContent(pane);
 
-        double centerX = 300;
-        double centerY = 200;
-        double maxRadius = 100;
-        double circleRadius = 20;
-        double angleIncrement = 360.0 / count;
-        double currentAngle = 0;
+    double centerX = 300;
+    double centerY = 200;
+    double maxRadius = 100;
+    double circleRadius = 20;
+    double angleIncrement = 360.0 / count;
+    double currentAngle = 0;
 
-        for (String estado : estadosList) {
-            double x = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle));
-            double y = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle));
-            
-            Circle circle = new Circle(x, y, circleRadius);
-            circle.setStyle("-fx-stroke: black; -fx-fill: yellow;");
-            pane.getChildren().add(circle);
+    for (int i = 0; i < estadosList.size(); i++) {
+        String estado = estadosList.get(i);
+        double x = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle));
+        double y = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle));
 
-            Text text = new Text(x - circleRadius / 2, y, estado);
-            text.setStyle("-fx-font: 12 arial;");
-            pane.getChildren().add(text);
+        Circle circle = new Circle(x, y, circleRadius);
+        circle.setStyle("-fx-stroke: black; -fx-fill: yellow;");
+        pane.getChildren().add(circle);
 
-            currentAngle += angleIncrement;
+        Text text = new Text(x - circleRadius / 2, y, estado);
+        text.setStyle("-fx-font: 12 arial;");
+        pane.getChildren().add(text);
+
+        // Marcar el estado inicial y final
+        if (estado.equals(estadoInicialTextField.getText())) {
+            // Marcar el estado inicial con un triángulo
+            Polygon initialArrow = new Polygon();
+            initialArrow.getPoints().addAll(x - 10, y + 10, x + 10, y + 10, x, y - 10);
+            initialArrow.setStyle("-fx-fill: green;");
+            pane.getChildren().add(initialArrow);
+        }
+        if (estado.equals(estadoFinalTextField.getText())) {
+            // Marcar el estado final con un círculo con borde verde
+            Circle finalStateCircle = new Circle(x, y, circleRadius + 5);
+            finalStateCircle.setStyle("-fx-stroke: green; -fx-fill: none;");
+            pane.getChildren().add(finalStateCircle);
         }
 
-        // Iterar a través de la matriz y crear líneas solo cuando no está vacía
-        for (int row = 0; row < estadosList.size(); row++) {
-            for (int col = 0; col < abecedarioList.size(); col++) {
-                String dato = textFields[row][col].getText();
-                if (!dato.isEmpty()) {
-                    int nodeIndex1 = row; // Nodo actual
-                    int nodeIndex2 = abecedarioList.indexOf(dato); // Nodo correspondiente
+        currentAngle += angleIncrement;
+    }
 
-                    double x1 = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement));
-                    double y1 = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement));
-                    double x2 = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
-                    double y2 = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
+    // Iterar a través de la matriz y crear líneas solo cuando no está vacía
+    for (int row = 0; row < estadosList.size(); row++) {
+        for (int col = 0; col < abecedarioList.size(); col++) {
+            String dato = textFields[row][col].getText();
+            if (!dato.isEmpty()) {
+                int nodeIndex1 = row; // Nodo actual
+                int nodeIndex2 = abecedarioList.indexOf(dato); // Nodo correspondiente
 
-                    Line line = new Line(x1, y1, x2, y2);
-                    line.setStyle("-fx-stroke: black;");
-                    pane.getChildren().add(line);
-                }
+                double x1 = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement));
+                double y1 = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement));
+                double x2 = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
+                double y2 = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
+
+                Polygon arrow = new Polygon();
+                arrow.getPoints().addAll(x2, y2, x2 - 10, y2 + 10, x2 + 10, y2 + 10);
+                arrow.setStyle("-fx-fill: black;");
+                pane.getChildren().add(arrow);
+
+                Line line = new Line(x1, y1, x2, y2);
+                line.setStyle("-fx-stroke: black;");
+                pane.getChildren().add(line);
             }
         }
-
-        tab.setContent(scrollPane);
     }
+
+    tab.setContent(scrollPane);
+}
+
 
     private Tab createAdaptableTab(String tabTitle) {
         Tab tab = new Tab(tabTitle);
@@ -229,7 +299,7 @@ public class VAutomatas extends Application {
             }
         }
     }
-    
+
     public static void obtenerYProcesarDatos(TextField[][] textFields) {
         // Obtener y procesar datos desde los campos TextField
         for (int row = 0; row < textFields.length / 2; row++) {
@@ -240,8 +310,47 @@ public class VAutomatas extends Application {
             }
         }
     }
-    
+
+   public static void procesarDatos(TextField[][] textFields, List<String> estadosList, List<String> abecedarioList) {
+    // Crear un mapa para almacenar las transiciones
+    Map<String, Map<String, String>> transicionesMap = new HashMap<>();
+
+    for (int row = 0; row < textFields.length; row++) {
+        String estadoOrigen = estadosList.get(row); // Estado actual (origen)
+        Map<String, String> transiciones = new HashMap<>(); // Mapa de transiciones para el estado actual
+        boolean tieneBucle = false; // Variable para indicar si hay un bucle en este estado
+
+        for (int col = 0; col < textFields[row].length; col++) {
+            String dato = textFields[row][col].getText();
+
+            if (!dato.isEmpty()) {
+                String simbolo = abecedarioList.get(col); // Símbolo del abecedario
+                String estadoDestino = dato; // Estado de destino
+
+                transiciones.put(simbolo, estadoDestino);// Agregar la transición al mapa de transiciones del estado actual
+
+                // Verifica si es un bucle (conexión a sí mismo)
+                if (estadoOrigen.equals(estadoDestino)) {
+                    // Registra el bucle en el mapa de transiciones del estado actual
+                    transiciones.put("loop", estadoOrigen);
+                    tieneBucle = true;
+                }
+            }
+        }
+
+        transicionesMap.put(estadoOrigen, transiciones);// Agregar el mapa de transiciones del estado actual al mapa principal
+
+        // Si tiene un bucle, regístralo en la estructura de datos
+        if (tieneBucle) {
+            // Puedes registrar el bucle en el mismo mapa de transiciones o en una estructura adicional.
+            // Por ejemplo:
+            // transicionesMap.get(estadoOrigen).put("loop", estadoOrigen);
+        }
+    }
+
+}
+
     public static void main(String[] args) {
         launch(args);
-    }   
+    }
 }
