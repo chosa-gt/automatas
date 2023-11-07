@@ -1,4 +1,4 @@
-package miprimeragui;
+package prueba;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import javafx.scene.text.Text;
 
-public class VAutomatas extends Application {
+public class pruebas extends Application {
 
     String textoAbecedario;
     String textoEstados;
@@ -27,9 +27,9 @@ public class VAutomatas extends Application {
     Tab tabFormulario = new Tab("Formulario");
     Tab tablaTab = createAdaptableTab("Tabla");
     Tab diagramaTab = new Tab("Diagrama");
-    
+
     TextField[][] textFields;
-    
+
     @Override
     public void start(Stage stage) {
         tabFormulario.setClosable(false);
@@ -55,7 +55,7 @@ public class VAutomatas extends Application {
         Button aceptar = new Button("Aceptar");
         GridPane.setConstraints(aceptar, 1, 0);
         grid.getChildren().add(aceptar);
-        
+
         Button limpiar = new Button("Limpiar");
         GridPane.setConstraints(limpiar, 1, 1);
         grid.getChildren().add(limpiar);
@@ -95,7 +95,7 @@ public class VAutomatas extends Application {
         stage.setScene(scene);
         stage.show();
     }
-    
+
     private void buildDynamicGridPane(Tab tab, ArrayList<String> abecedarioList, ArrayList<String> estadosList) {
         ScrollPane scrollPane = new ScrollPane();
         GridPane grid = new GridPane();
@@ -239,5 +239,9 @@ public class VAutomatas extends Application {
                 // Realizar el procesamiento necesario
             }
         }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

@@ -1,39 +1,40 @@
-package miprimeragui;
-
+package prueba;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.stage.Stage;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import javafx.scene.text.Text;
+import javafx.scene.Parent;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
-public class VAutomatas extends Application {
+public class NewClassxd extends Application {
 
-    String textoAbecedario;
-    String textoEstados;
     ArrayList<String> abecedarioList = new ArrayList<>();
     ArrayList<String> estadosList = new ArrayList<>();
 
-    TabPane tabPane = new TabPane();
+    private Parent createContent() {
+        return new StackPane(new Text("Hello World"));
+    }
 
-    Tab tabFormulario = new Tab("Formulario");
-    Tab tablaTab = createAdaptableTab("Tabla");
-    Tab diagramaTab = new Tab("Diagrama");
-    
-    TextField[][] textFields;
-    
     @Override
     public void start(Stage stage) {
-        tabFormulario.setClosable(false);
+        Group root = new Group();
+        TabPane tabPane = new TabPane();
+        
+        Tab tablaTab = createAdaptableTab("Tabla");
+        Tab diagramaTab = createAdaptableTab("Diagrama");
 
+        Tab tab1 = new Tab("Formulario");
+        tab1.setClosable(false);
+        
         VBox vbox = new VBox();
         Scene scene = new Scene(vbox, 720, 480);
 
@@ -55,7 +56,7 @@ public class VAutomatas extends Application {
         Button aceptar = new Button("Aceptar");
         GridPane.setConstraints(aceptar, 1, 0);
         grid.getChildren().add(aceptar);
-        
+
         Button limpiar = new Button("Limpiar");
         GridPane.setConstraints(limpiar, 1, 1);
         grid.getChildren().add(limpiar);
@@ -65,45 +66,50 @@ public class VAutomatas extends Application {
         GridPane.setColumnSpan(label, 2);
         grid.getChildren().add(label);
 
-        aceptar.setOnAction((ActionEvent e) -> {
+        aceptar.setOnAction(e -> {
             if (estados.getText() != null && !abecedario.getText().isEmpty()) {
-                label.setText(abecedario.getText() + " " + estados.getText() + ", Parámetros aceptados.");
-                textoAbecedario = abecedario.getText();
-                textoEstados = estados.getText();
-                abecedarioList = new ArrayList<>(Arrays.asList(textoAbecedario.split("[,\\s]+")));
-                estadosList = new ArrayList<>(Arrays.asList(textoEstados.split("[,\\s]+")));
+                label.setText(abecedario.getText() + " " + estados.getText() + ", Parámetros aceptados");
+                abecedarioList = new ArrayList<>(Arrays.asList(abecedario.getText().split("[,\\s]+")));
+                estadosList = new ArrayList<>(Arrays.asList(estados.getText().split("[,\\s]+")));
 
                 buildDynamicGridPane(tablaTab, abecedarioList, estadosList);
                 tabPane.getTabs().add(tablaTab);
                 tabPane.getSelectionModel().select(tablaTab);
+                
+                buildDiagram(diagramaTab);
+                tabPane.getTabs().add(diagramaTab);
+                tabPane.getSelectionModel().select(diagramaTab);
+                
             } else {
                 label.setText("Parámetros no aceptados");
             }
         });
 
-        limpiar.setOnAction((ActionEvent e) -> {
+        limpiar.setOnAction(e -> {
             abecedario.clear();
             estados.clear();
             label.setText(null);
+            buildDynamicGridPane(tablaTab, new ArrayList<>(), new ArrayList<>());
+            tabPane.getTabs().remove(tablaTab);
+            buildDiagram(diagramaTab);
+            tabPane.getTabs().remove(diagramaTab);
         });
-
+        
         vbox.getChildren().addAll(tabPane);
-        tabFormulario.setContent(grid);
-        tabPane.getTabs().add(tabFormulario);
+        tab1.setContent(grid);
+        tabPane.getTabs().add(tab1);
 
         stage.setTitle("Automatas");
         stage.setScene(scene);
         stage.show();
     }
-    
+
     private void buildDynamicGridPane(Tab tab, ArrayList<String> abecedarioList, ArrayList<String> estadosList) {
-        ScrollPane scrollPane = new ScrollPane();
+        ScrollPane scrollPane = new ScrollPane();        
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(10, 10, 10, 10));
         grid.setVgap(5);
         grid.setHgap(5);
-        
-        textFields = new TextField[estadosList.size()][abecedarioList.size()];
         
         for (int col = 0; col < abecedarioList.size(); col++) {
             Label etiqueta = new Label(abecedarioList.get(col));
@@ -115,6 +121,7 @@ public class VAutomatas extends Application {
             grid.add(etiqueta, 1, row + 6);
         }
 
+        TextField[][] textFields = new TextField[estadosList.size()][abecedarioList.size()];
         for (int row = 0; row < estadosList.size(); row++) {
             for (int col = 0; col < abecedarioList.size(); col++) {
                 textFields[row][col] = new TextField();
@@ -123,25 +130,12 @@ public class VAutomatas extends Application {
             }
         }
 
-        Button crear = new Button("Crear Automata");
-        GridPane.setConstraints(crear, 1, 0);
-        grid.getChildren().add(crear);
-
-        crear.setOnAction((ActionEvent e) -> {
-            imprimirTextFields(textFields);
-            obtenerYProcesarDatos(textFields);
-
-            generateCircles(diagramaTab, estadosList.size());
-            tabPane.getTabs().add(diagramaTab);
-            tabPane.getSelectionModel().select(diagramaTab);
-        });
-
         scrollPane.setContent(grid);
         scrollPane.setFitToWidth(true);
         tab.setContent(scrollPane);
     }
-
-    private void generateCircles(Tab tab, int count) {
+    
+    private void buildDiagram(Tab tab) {
         ScrollPane scrollPane = new ScrollPane();
         Pane pane = new Pane();
         scrollPane.setContent(pane);
@@ -150,43 +144,43 @@ public class VAutomatas extends Application {
         double centerY = 200;
         double maxRadius = 100;
         double circleRadius = 20;
-        double angleIncrement = 360.0 / count;
+        double angleIncrement = 360.0 / estadosList.size();
         double currentAngle = 0;
+
+        ArrayList<Circle> circles = new ArrayList<>();
+        ArrayList<Text> labels = new ArrayList<>();
 
         for (String estado : estadosList) {
             double x = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle));
             double y = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle));
-            
+
             Circle circle = new Circle(x, y, circleRadius);
-            circle.setStyle("-fx-stroke: black; -fx-fill: yellow;");
-            pane.getChildren().add(circle);
+            circle.setStroke(Color.BLACK);
+            circle.setFill(Color.YELLOW);
+            circles.add(circle);
 
             Text text = new Text(x - circleRadius / 2, y, estado);
-            text.setStyle("-fx-font: 12 arial;");
-            pane.getChildren().add(text);
+            text.setFont(Font.font("Arial", 12));
+            labels.add(text);
 
             currentAngle += angleIncrement;
         }
 
-        // Iterar a través de la matriz y crear líneas solo cuando no está vacía
-        for (int row = 0; row < estadosList.size(); row++) {
-            for (int col = 0; col < abecedarioList.size(); col++) {
-                String dato = textFields[row][col].getText();
-                if (!dato.isEmpty()) {
-                    int nodeIndex1 = row; // Nodo actual
-                    int nodeIndex2 = abecedarioList.indexOf(dato); // Nodo correspondiente
+        for (int i = 0; i < circles.size(); i++) {
+            for (int j = i + 1; j < circles.size(); j++) {
+                double startX = circles.get(i).getCenterX();
+                double startY = circles.get(i).getCenterY();
+                double endX = circles.get(j).getCenterX();
+                double endY = circles.get(j).getCenterY();
 
-                    double x1 = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement));
-                    double y1 = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement));
-                    double x2 = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
-                    double y2 = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
-
-                    Line line = new Line(x1, y1, x2, y2);
-                    line.setStyle("-fx-stroke: black;");
-                    pane.getChildren().add(line);
-                }
+                Line line = new Line(startX, startY, endX, endY);
+                line.setStroke(Color.BLACK);
+                pane.getChildren().add(line);
             }
         }
+
+        pane.getChildren().addAll(circles);
+        pane.getChildren().addAll(labels);
 
         tab.setContent(scrollPane);
     }
@@ -201,43 +195,15 @@ public class VAutomatas extends Application {
         }
 
         scrollPane.setContent(content);
-
         content.prefWidthProperty().bind(scrollPane.widthProperty());
         content.prefHeightProperty().bind(scrollPane.heightProperty());
-
         tab.setContent(scrollPane);
 
         return tab;
     }
 
-    public static TextField[][] getTextFieldsFromTab(Tab tab, int numColumns, int numRows) {
-        GridPane grid = (GridPane) tab.getContent();
-        TextField[][] textFields = new TextField[numRows][numColumns];
-        for (int row = 0; row < numRows; row++) {
-            for (int col = 0; col < numColumns; col++) {
-                textFields[row][col] = (TextField) grid.getChildren().get((row + 6) * numColumns + col + 2);
-            }
-        }
-        return textFields;
-    }
-
-    public static void imprimirTextFields(TextField[][] textFields) {
-        for (int row = 0; row < textFields.length; row++) {
-            for (int col = 0; col < textFields[row].length; col++) {
-                String dato = textFields[row][col].getText();
-                System.out.println("Dato [" + row + "][" + col + "]: " + dato);
-            }
-        }
-    }
-    
-    public static void obtenerYProcesarDatos(TextField[][] textFields) {
-        // Obtener y procesar datos desde los campos TextField
-        for (int row = 0; row < textFields.length / 2; row++) {
-            for (int col = 0; col < (textFields[row].length / 2) - 1; col++) {
-                String dato = textFields[row][col].getText();
-                System.out.println("Dato [" + row + "][" + col + "]: " + dato);
-                // Realizar el procesamiento necesario
-            }
-        }
+    public static void main(String[] args) {
+        launch(args);
     }
 }
+
