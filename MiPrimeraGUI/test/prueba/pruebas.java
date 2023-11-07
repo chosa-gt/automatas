@@ -228,7 +228,6 @@ public class pruebas extends Application {
                 System.out.println("Dato [" + row + "][" + col + "]: " + dato);
             }
         }
-    
     }
     
     public static void obtenerYProcesarDatos(TextField[][] textFields) {
