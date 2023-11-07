@@ -189,16 +189,16 @@ public class VAutomatas extends Application {
         tab.setContent(scrollPane);
     }
 
-    private void generateCircles(Tab tab, int count) {
-    ScrollPane scrollPane = new ScrollPane();
-    Pane pane = new Pane();
-    scrollPane.setContent(pane);
-
+    private void generateStates(Pane pane) {
     double centerX = 300;
     double centerY = 200;
     double maxRadius = 100;
     double circleRadius = 20;
-    double angleIncrement = 360.0 / count;
+    double labelOffsetX = -circleRadius / 2; // Offset horizontal para centrar el texto
+    double labelOffsetY = circleRadius / 4; // Offset vertical para centrar el texto
+    double triangleOffsetX = -circleRadius; // Offset horizontal para el triángulo invertido
+    double triangleOffsetY = 0; // Offset vertical para el triángulo invertido
+    double angleIncrement = 360.0 / estadosList.size();
     double currentAngle = 0;
 
     for (int i = 0; i < estadosList.size(); i++) {
@@ -210,18 +210,21 @@ public class VAutomatas extends Application {
         circle.setStyle("-fx-stroke: black; -fx-fill: yellow;");
         pane.getChildren().add(circle);
 
-        Text text = new Text(x - circleRadius / 2, y, estado);
+        Text text = new Text(x + labelOffsetX, y + labelOffsetY, estado);
         text.setStyle("-fx-font: 12 arial;");
         pane.getChildren().add(text);
 
-        // Marcar el estado inicial y final
+        // Marcar el estado inicial con un triángulo invertido (girado 180 grados)
         if (estado.equals(estadoInicialTextField.getText())) {
-            // Marcar el estado inicial con un triángulo
             Polygon initialArrow = new Polygon();
-            initialArrow.getPoints().addAll(x - 10, y + 10, x + 10, y + 10, x, y - 10);
+            initialArrow.getPoints().addAll(x + triangleOffsetX, y + triangleOffsetY - circleRadius,
+                    x + triangleOffsetX - circleRadius, y + triangleOffsetY + circleRadius,
+                    x + triangleOffsetX + circleRadius, y + triangleOffsetY + circleRadius);
             initialArrow.setStyle("-fx-fill: green;");
             pane.getChildren().add(initialArrow);
         }
+
+        // Marcar el estado final
         if (estado.equals(estadoFinalTextField.getText())) {
             // Marcar el estado final con un círculo con borde verde
             Circle finalStateCircle = new Circle(x, y, circleRadius + 5);
@@ -231,8 +234,17 @@ public class VAutomatas extends Application {
 
         currentAngle += angleIncrement;
     }
+}
 
-    // Iterar a través de la matriz y crear líneas solo cuando no está vacía
+
+private void generateTransitions(Pane pane) {
+    double centerX = 300;
+    double centerY = 200;
+    double maxRadius = 100;
+    double circleRadius = 20;
+    double angleIncrement = 360.0 / estadosList.size();
+    double currentAngle = 0;
+
     for (int row = 0; row < estadosList.size(); row++) {
         for (int col = 0; col < abecedarioList.size(); col++) {
             String dato = textFields[row][col].getText();
@@ -245,18 +257,32 @@ public class VAutomatas extends Application {
                 double x2 = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
                 double y2 = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
 
+                // Calcular las coordenadas de inicio y fin para que inicie y termine en el borde de los círculos
+                double startX = x1 + (circleRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement)));
+                double startY = y1 + (circleRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement)));
+                double endX = x2 - (circleRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement)));
+                double endY = y2 - (circleRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement)));
+
                 Polygon arrow = new Polygon();
-                arrow.getPoints().addAll(x2, y2, x2 - 10, y2 + 10, x2 + 10, y2 + 10);
+                arrow.getPoints().addAll(endX, endY, endX - 10, endY + 10, endX + 10, endY + 10);
                 arrow.setStyle("-fx-fill: black;");
                 pane.getChildren().add(arrow);
 
-                Line line = new Line(x1, y1, x2, y2);
+                Line line = new Line(startX, startY, endX, endY);
                 line.setStyle("-fx-stroke: black;");
                 pane.getChildren().add(line);
             }
         }
     }
+}
+    
+    private void generateCircles(Tab tab, int count) {
+    ScrollPane scrollPane = new ScrollPane();
+    Pane pane = new Pane();
+    scrollPane.setContent(pane);
 
+    generateStates(pane); // Llama al método para crear los estados
+    generateTransitions(pane); // Llama al método para crear las transiciones (líneas y flechas)
     tab.setContent(scrollPane);
 }
 
