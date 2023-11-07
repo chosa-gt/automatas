@@ -13,7 +13,6 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import javafx.scene.shape.QuadCurve;
 import javafx.scene.text.Text;
 
 public class pruebalist extends Application {
@@ -142,74 +141,55 @@ public class pruebalist extends Application {
         tab.setContent(scrollPane);
     }
 
-private void generateCircles(Tab tab, int count) {
-    ScrollPane scrollPane = new ScrollPane();
-    Pane pane = new Pane();
-    scrollPane.setContent(pane);
+    private void generateCircles(Tab tab, int count) {
+        ScrollPane scrollPane = new ScrollPane();
+        Pane pane = new Pane();
+        scrollPane.setContent(pane);
 
-    double centerX = 300;
-    double centerY = 200;
-    double maxRadius = 100;
-    double circleRadius = 20;
-    double angleIncrement = 360.0 / count;
-    double currentAngle = 0;
+        double centerX = 300;
+        double centerY = 200;
+        double maxRadius = 100;
+        double circleRadius = 20;
+        double angleIncrement = 360.0 / count;
+        double currentAngle = 0;
 
-    for (String estado : estadosList) {
-        double x = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle));
-        double y = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle));
+        for (String estado : estadosList) {
+            double x = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle));
+            double y = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle));
+            
+            Circle circle = new Circle(x, y, circleRadius);
+            circle.setStyle("-fx-stroke: black; -fx-fill: yellow;");
+            pane.getChildren().add(circle);
 
-        Circle circle = new Circle(x, y, circleRadius);
-        circle.setStyle("-fx-stroke: black; -fx-fill: yellow;");
-        pane.getChildren().add(circle);
+            Text text = new Text(x - circleRadius / 2, y, estado);
+            text.setStyle("-fx-font: 12 arial;");
+            pane.getChildren().add(text);
 
-        Text text = new Text(x - circleRadius / 2, y, estado);
-        text.setStyle("-fx-font: 12 arial;");
-        pane.getChildren().add(text);
+            currentAngle += angleIncrement;
+        }
 
-        currentAngle += angleIncrement;
+        // Iterar a través de la matriz y crear líneas solo cuando no está vacía
+        for (int row = 0; row < estadosList.size(); row++) {
+            for (int col = 0; col < abecedarioList.size(); col++) {
+                String dato = textFields[row][col].getText();
+                if (!dato.isEmpty()) {
+                    int nodeIndex1 = row; // Nodo actual
+                    int nodeIndex2 = abecedarioList.indexOf(dato); // Nodo correspondiente
 
-        boolean lineaCreada = false;
-
-        for (int col = 0; col < abecedarioList.size(); col++) {
-            String[] datos = textFields[estadosList.indexOf(estado)][col].getText().split(",");
-            int ultimaX = (int) x;
-            int ultimaY = (int) y;
-
-            for (String dato : datos) {
-                if (!dato.isEmpty() && estadosList.contains(dato) && !dato.equals(estado)) {
-                    // Obtén las coordenadas del nodo correspondiente
-                    int nodeIndex2 = estadosList.indexOf(dato);
+                    double x1 = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement));
+                    double y1 = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex1 * angleIncrement));
                     double x2 = centerX + maxRadius * Math.cos(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
                     double y2 = centerY + maxRadius * Math.sin(Math.toRadians(currentAngle + nodeIndex2 * angleIncrement));
 
-                    if (lineaCreada) {
-                        // Si ya se ha creado una línea, conecta al último punto en lugar del centro del círculo
-                        QuadCurve curve = new QuadCurve(ultimaX, ultimaY, x, y, x2, y2);
-                        curve.setStyle("-fx-stroke: black;");
-                        pane.getChildren().add(curve);
-                    } else {
-                        // Crea una línea curva desde el centro del círculo al destino
-                        QuadCurve curve = new QuadCurve(x, y, (x + x2) / 2, (y + y2) / 2, x2, y2);
-                        curve.setStyle("-fx-stroke: black;");
-                        pane.getChildren().add(curve);
-                        lineaCreada = true;
-                    }
-
-                    ultimaX = (int) x2;
-                    ultimaY = (int) y2;
+                    Line line = new Line(x1, y1, x2, y2);
+                    line.setStyle("-fx-stroke: black;");
+                    pane.getChildren().add(line);
                 }
             }
         }
+
+        tab.setContent(scrollPane);
     }
-
-    tab.setContent(scrollPane);
-}
-
-
-
-
-
-
 
     private Tab createAdaptableTab(String tabTitle) {
         Tab tab = new Tab(tabTitle);
@@ -264,9 +244,6 @@ private void generateCircles(Tab tab, int count) {
 
     public static void main(String[] args) {
         launch(args);
+    }
+   }
 }
-}
-
-
-
-
