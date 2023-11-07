@@ -244,41 +244,15 @@ public class VAutomatas extends Application {
         }
     }
 
-    public static TextField[][] getTextFieldsFromTab(Tab tab, int numColumns, int numRows) {
-        GridPane grid = (GridPane) tab.getContent();
-        TextField[][] textFields = new TextField[numRows][numColumns];
-        for (int row = 0; row < numRows; row++) {
-            for (int col = 0; col < numColumns; col++) {
-                textFields[row][col] = (TextField) grid.getChildren().get((row + 6) * numColumns + col + 2);
-            }
-        }
-        return textFields;
-    }
 
-    public static void obtenerYProcesarDatos(TextField[][] textFields) {
-        // Obtener y procesar datos desde los campos TextField
-        for (int row = 0; row < textFields.length/2; row++) {
-            for (int col = 0; col < (textFields[row].length/2)-1; col++) {
-                String dato = textFields[row][col].getText();
-                System.out.println("Dato [" + row + "][" + col + "]: " + dato);
-                // Realizar el procesamiento necesario
-            }
-        }
-    }
+
     public static void main(String[] args) {
         launch(args);
     }
 
     
 
-public static void imprimirTextFields(TextField[][] textFields) {
-    for (int row = 0; row < textFields.length; row++) {
-        for (int col = 0; col < textFields[row].length; col++) {
-            String dato = textFields[row][col].getText();
-            System.out.println("Dato [" + row + "][" + col + "]: " + dato);
-        }
-    }
-}
+
 
  
 
